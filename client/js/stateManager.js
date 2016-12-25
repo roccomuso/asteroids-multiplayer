@@ -1,13 +1,18 @@
 
 
-var config =
-{
-  players:{
-    numbersOfPlayer: 2
-  },
-  display:{height: 720, width:960}, 
-  worldDim: { height: 1000 , width: 1000 }
-}
+var config = {
+    players: {
+        numbersOfPlayer: 2
+    },
+    display: {
+        height: 720,
+        width: 960
+    },
+    worldDim: {
+        height: 2000,
+        width: 2000
+    }
+};
 
 /*
 For Fullscreen put this code:

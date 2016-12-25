@@ -1,5 +1,5 @@
 
-var sprite;
+var ship;
 var cursors;
 
 var bullet;
@@ -40,27 +40,27 @@ var startState = {
         bullets.setAll('anchor.y', 0.5);
 
         //  Our player ship
-        sprite = game.add.sprite(300, 300, 'ship');
-        sprite.anchor.set(0.5);
+        ship = game.add.sprite(300, 300, 'ship');
+        ship.anchor.set(0.5);
 
         // Ship's sparkle
         sparkle = game.add.sprite(0, 0, 'sparkle');
         sparkle.angle = 180;
         sparkle.anchor.set(0.5);
-        sprite.addChild(sparkle);
+        ship.addChild(sparkle);
 
         // Camera Gesture
-        game.camera.x = sprite.x;
-        game.camera.y = sprite.y;
-        game.camera.height = game.height -80;
-        game.camera.width = game.width - 80;
-        game.camera.follow(sprite);
+        game.camera.x = ship.x;
+        game.camera.y = ship.y;
+        game.camera.height = game.height;
+        game.camera.width = game.width;
+        game.camera.follow(ship);
 
         //  ship's physics settings
-        game.physics.enable(sprite, Phaser.Physics.ARCADE);
+        game.physics.enable(ship, Phaser.Physics.ARCADE);
 
-        sprite.body.drag.set(100);
-        sprite.body.maxVelocity.set(200);
+        ship.body.drag.set(100);
+        ship.body.maxVelocity.set(200);
 
         //  Game input
         cursors = game.input.keyboard.createCursorKeys();
@@ -71,27 +71,27 @@ var startState = {
     update: function() {
 
         if (cursors.up.isDown){
-            game.physics.arcade.accelerationFromRotation(sprite.rotation, 200, sprite.body.acceleration);
+            game.physics.arcade.accelerationFromRotation(ship.rotation, 200, ship.body.acceleration);
             sparkle.visible = true;
         }else{
-            sprite.body.acceleration.set(0);
+            ship.body.acceleration.set(0);
             sparkle.body.acceleration.set(0);
             sparkle.visible = false;
         }
 
         if (cursors.left.isDown){
-            sprite.body.angularVelocity = -300;
+            ship.body.angularVelocity = -300;
         }else if (cursors.right.isDown){
-            sprite.body.angularVelocity = 300;
+            ship.body.angularVelocity = 300;
         }else{
-            sprite.body.angularVelocity = 0;
+            ship.body.angularVelocity = 0;
         }
 
         if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
             fireBullet();
         }
 
-        screenWrap(sprite);
+        screenWrap(ship);
 
         bullets.forEachExists(screenWrap, this);
 
@@ -109,28 +109,28 @@ function fireBullet () {
 
         if (bullet)
         {
-            bullet.reset(sprite.body.x + 16, sprite.body.y + 16);
+            bullet.reset(ship.body.x + 16, ship.body.y + 16);
             bullet.lifespan = 2000;
-            bullet.rotation = sprite.rotation;
-            game.physics.arcade.velocityFromRotation(sprite.rotation, 400, bullet.body.velocity);
+            bullet.rotation = ship.rotation;
+            game.physics.arcade.velocityFromRotation(ship.rotation, 400, bullet.body.velocity);
             bulletTime = game.time.now + 50;
         }
     }
 
 }
 
-function screenWrap (sprite) {
+function screenWrap (ship) {
 
-    if (sprite.x < 0){
-        sprite.x = game.world.width;
-    } else if (sprite.x > game.world.width){
-        sprite.x = 0;
+    if (ship.x < 0){
+        ship.x = game.world.width;
+    } else if (ship.x > game.world.width){
+        ship.x = 0;
     }
 
-    if (sprite.y < 0){
-        sprite.y = game.world.height;
-    } else if (sprite.y > game.world.height){
-        sprite.y = 0;
+    if (ship.y < 0){
+        ship.y = game.world.height;
+    } else if (ship.y > game.world.height){
+        ship.y = 0;
     }
 
 }
