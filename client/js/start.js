@@ -16,7 +16,7 @@ var startState = {
     create: function() {
 
         // Set world dimension
-        game.world.setBounds(0, 0, config.worldDim.width, config.worldDim.width);
+        game.world.setBounds(0, 0, config.worldDim.width, config.worldDim.height);
         
         
         //  This will run in Canvas mode, so let's gain a little speed and display
