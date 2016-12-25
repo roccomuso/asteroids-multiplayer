@@ -11,6 +11,8 @@ var startState = {
         game.load.image('space', 'assets/img/deep-space.jpg');
         game.load.image('bullet', 'assets/img/bullets.png');
         game.load.image('ship', 'assets/img/ship.png');
+        game.load.image('sparkle', 'assets/img/sparkle.png');
+        //collision.bind(this);
     },
     create: function() {
         //  This will run in Canvas mode, so let's gain a little speed and display
@@ -37,6 +39,12 @@ var startState = {
         sprite = game.add.sprite(300, 300, 'ship');
         sprite.anchor.set(0.5);
 
+        // Ship's sparkle
+        sparkle = game.add.sprite(0, 0, 'sparkle');
+        sparkle.angle = 180;
+        sparkle.anchor.set(0.5);
+        sprite.addChild(sparkle);
+
         //  and its physics settings
         game.physics.enable(sprite, Phaser.Physics.ARCADE);
 
@@ -49,30 +57,24 @@ var startState = {
     },
     update: function() {
 
-        if (cursors.up.isDown)
-        {
+        if (cursors.up.isDown){
             game.physics.arcade.accelerationFromRotation(sprite.rotation, 200, sprite.body.acceleration);
-        }
-        else
-        {
+            sparkle.visible = true;
+        }else{
             sprite.body.acceleration.set(0);
+            sparkle.body.acceleration.set(0);
+            sparkle.visible = false;
         }
 
-        if (cursors.left.isDown)
-        {
+        if (cursors.left.isDown){
             sprite.body.angularVelocity = -300;
-        }
-        else if (cursors.right.isDown)
-        {
+        }else if (cursors.right.isDown){
             sprite.body.angularVelocity = 300;
-        }
-        else
-        {
+        }else{
             sprite.body.angularVelocity = 0;
         }
 
-        if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR))
-        {
+        if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
             fireBullet();
         }
 
