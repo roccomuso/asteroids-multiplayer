@@ -38,11 +38,11 @@ var startState = {
         bullets.createMultiple(40, 'bullet');
         bullets.setAll('anchor.x', 0.5);
         bullets.setAll('anchor.y', 0.5);
-        bullets.forEach(function(elem)
-        {
-            elem.body.collideWorldBounds = true;
-            elem.body.bounce.setTo(1, 1);
-        });
+        if (!config.screenWrap)
+            bullets.forEach(function (elem) {
+                elem.body.collideWorldBounds = true;
+                elem.body.bounce.setTo(1, 1);
+            });
 
         //  Our player ship
         ship = game.add.sprite(300, 300, 'ship');
@@ -103,7 +103,7 @@ var startState = {
             screenWrap(ship);
             bullets.forEachExists(screenWrap, this);
         }
-        
+
     },
     render: function () { }
 };
