@@ -1,6 +1,7 @@
 
 
 var config = {
+    screenWrap: false,
     players: {
         numbersOfPlayer: 2
     },
