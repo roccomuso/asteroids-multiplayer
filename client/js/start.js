@@ -12,9 +12,13 @@ var startState = {
         game.load.image('bullet', 'assets/img/bullets.png');
         game.load.image('ship', 'assets/img/ship.png');
         game.load.image('sparkle', 'assets/img/sparkle.png');
-        //collision.bind(this);
+        game.load.image("asteroid", "assets/img/asteroid2.png");
     },
     create: function() {
+
+        // Set world dimension
+        game.world.setBounds(0, 0, config.worldDim.width, config.worldDim.height);
+
         //  This will run in Canvas mode, so let's gain a little speed and display
         game.renderer.clearBeforeRender = false;
         game.renderer.roundPixels = true;
@@ -23,7 +27,7 @@ var startState = {
         game.physics.startSystem(Phaser.Physics.ARCADE);
 
         //  A spacey background
-        game.add.tileSprite(0, 0, game.width, game.height, 'space');
+        game.add.tileSprite(0, 0, game.world.width, game.world.height, 'space');
 
         //  Our ships bullets
         bullets = game.add.group();
@@ -45,7 +49,14 @@ var startState = {
         sparkle.anchor.set(0.5);
         sprite.addChild(sparkle);
 
-        //  and its physics settings
+        // Camera Gesture
+        game.camera.x = sprite.x;
+        game.camera.y = sprite.y;
+        game.camera.height = game.height -80;
+        game.camera.width = game.width - 80;
+        game.camera.follow(sprite);
+
+        //  ship's physics settings
         game.physics.enable(sprite, Phaser.Physics.ARCADE);
 
         sprite.body.drag.set(100);
@@ -54,6 +65,8 @@ var startState = {
         //  Game input
         cursors = game.input.keyboard.createCursorKeys();
         game.input.keyboard.addKeyCapture([ Phaser.Keyboard.SPACEBAR ]);
+
+
     },
     update: function() {
 
@@ -109,16 +122,14 @@ function fireBullet () {
 function screenWrap (sprite) {
 
     if (sprite.x < 0){
-        sprite.x = game.width;
-    }
-    else if (sprite.x > game.width){
+        sprite.x = game.world.width;
+    } else if (sprite.x > game.world.width){
         sprite.x = 0;
     }
 
     if (sprite.y < 0){
-        sprite.y = game.height;
-    }
-    else if (sprite.y > game.height){
+        sprite.y = game.world.height;
+    } else if (sprite.y > game.world.height){
         sprite.y = 0;
     }
 
