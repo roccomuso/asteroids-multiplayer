@@ -7,8 +7,13 @@ var bullets;
 var bulletTime = 0;
 var AUDIO = {};
 
-var nEnemies = 40;
+// enemies
+var nEnemies = 20;
 var enemies = [];
+
+// asteroids
+var nAsteroids = 20;
+var asteroids = [];
 
 var startState = {
     preload: function () {
@@ -16,7 +21,10 @@ var startState = {
         game.load.image('bullet', 'assets/img/bullets.png');
         game.load.image('ship', 'assets/img/ship.png');
         game.load.image('sparkle', 'assets/img/sparkle.png');
-        game.load.image("asteroid", "assets/img/asteroid2.png");
+        game.load.image("asteroid1", "assets/img/asteroid1.png");
+        game.load.image("asteroid2", "assets/img/asteroid2.png");
+        game.load.image("asteroid3", "assets/img/asteroid3.png");
+        game.load.image("asteroid4", "assets/img/asteroid4.png");
 
         // Audio
         game.load.audio("boost", "assets/sounds/boost_ship.wav");
@@ -64,6 +72,7 @@ var startState = {
         // enemies
         for (var i = 0; i < nEnemies; i++){
           enemies[i] = game.add.sprite(300+(i*100), 300+(i*100),'ship');
+          enemies[i].anchor.set(0.5);
           enemies[i].animations.add('flash', [0,1,2,3,2,1,0], 24, false);
         }
         game.physics.arcade.enable(enemies);
@@ -74,6 +83,24 @@ var startState = {
           enemy.body.bounce.set(1);
           enemy.body.onCollide = new Phaser.Signal();
           enemy.body.onCollide.add(shipsCollision, this);
+        });
+
+        // asteroids
+        for (var k = 0; k < nAsteroids; k++){
+          asteroids[k] = game.add.sprite(300+(k*100), 300+(k*100),'asteroid'+(Math.floor(Math.random()*4)+1));
+          asteroids[k].anchor.set(0.5);
+          asteroids[k].animations.add('flash', [0,1,2,3,2,1,0], 24, false);
+        }
+        game.physics.arcade.enable(asteroids);
+        asteroids.forEach(function(asteroid){
+          if (!config.screenWrap)
+            asteroid.body.collideWorldBounds = true;
+          asteroid.body.velocity.setTo(100, 150);
+          asteroid.body.angularVelocity = 50;
+          asteroid.body.mass = 10;
+          asteroid.body.bounce.set(1);
+          asteroid.body.onCollide = new Phaser.Signal();
+          asteroid.body.onCollide.add(shipsCollision, this);
         });
 
         //  Our player ship
@@ -119,6 +146,9 @@ var startState = {
 
         game.physics.arcade.collide(enemies, ship, shipsCollision);
         game.physics.arcade.collide(enemies, enemies);
+        game.physics.arcade.collide(asteroids, ship, asteroidCollision);
+        game.physics.arcade.collide(asteroids, asteroids);
+        game.physics.arcade.collide(asteroids, enemies);
 
         if (cursors.up.isDown) {
             game.physics.arcade.accelerationFromRotation(ship.rotation, 200, ship.body.acceleration);
@@ -192,4 +222,8 @@ function shipsCollision(sprite1, sprite2) {
     // TODO, fix animations...
     sprite1.play('flash');
     sprite2.play('flash');
+}
+
+function asteroidCollision(s1, s2){
+
 }
