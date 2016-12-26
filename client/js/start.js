@@ -15,6 +15,10 @@ var enemies = [];
 var nAsteroids = 20;
 var asteroids = [];
 
+// moon
+var nMoons = 1;
+var moons = [];
+
 var startState = {
     preload: function () {
         game.load.image('space', 'assets/img/deep-space.jpg');
@@ -25,6 +29,7 @@ var startState = {
         game.load.image("asteroid2", "assets/img/asteroid2.png");
         game.load.image("asteroid3", "assets/img/asteroid3.png");
         game.load.image("asteroid4", "assets/img/asteroid4.png");
+        game.load.image("moon", "assets/img/moon.png");
 
         // Audio
         game.load.audio("boost", "assets/sounds/boost_ship.wav");
@@ -103,6 +108,25 @@ var startState = {
           asteroid.body.onCollide.add(shipsCollision, this);
         });
 
+        // moon
+        for (k = 0; k < nMoons; k++){
+          moons[k] = game.add.sprite(300+(k*100), 300+(k*100),'moon');
+          moons[k].anchor.set(0.5);
+          moons[k].animations.add('flash', [0,1,2,3,2,1,0], 24, false);
+        }
+        game.physics.arcade.enable(moons);
+        moons.forEach(function(moon){
+          if (!config.screenWrap)
+            moon.body.collideWorldBounds = true;
+          moon.body.velocity.setTo(100, 100);
+          moon.body.angularVelocity = -30;
+          moon.scale.setTo(1.5, 1.5);
+          moon.body.mass = 30;
+          moon.body.bounce.set(1);
+          moon.body.onCollide = new Phaser.Signal();
+          moon.body.onCollide.add(shipsCollision, this);
+        });
+
         //  Our player ship
         ship = game.add.sprite(200, 200, 'ship');
         ship.anchor.set(0.5);
@@ -149,6 +173,9 @@ var startState = {
         game.physics.arcade.collide(asteroids, ship, asteroidCollision);
         game.physics.arcade.collide(asteroids, asteroids);
         game.physics.arcade.collide(asteroids, enemies);
+        game.physics.arcade.collide(moons, moons);
+        game.physics.arcade.collide(moons, ship, asteroidCollision);
+        game.physics.arcade.collide(moons, enemies);
 
         if (cursors.up.isDown) {
             game.physics.arcade.accelerationFromRotation(ship.rotation, 200, ship.body.acceleration);
