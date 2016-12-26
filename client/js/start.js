@@ -65,7 +65,7 @@ var startState = {
         bullets.physicsBodyType = Phaser.Physics.ARCADE;
 
         //  All 40 of them
-        bullets.createMultiple(40, 'bullet');
+        bullets.createMultiple(1, 'bullet');
         bullets.setAll('anchor.x', 0.5);
         bullets.setAll('anchor.y', 0.5);
         if (!config.screenWrap)
@@ -241,10 +241,10 @@ function shipsCollision(sprite1, sprite2) {
     //sprite2.play('flash');
 }
 
-function bulletsCollision(sprite1, sprite2) {
+function bulletsCollision(enemy, bullet) {
     AUDIO.ship_collision.play();
-    console.log(sprite1);
-    if (sprite1.destroy) sprite1.destroy();
+    enemy.destroy();
+    bullet.visible = false;
 }
 
 function asteroidCollision(s1, s2){
