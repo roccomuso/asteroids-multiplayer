@@ -16,6 +16,11 @@ var startState = {
         game.load.image('ship', 'assets/img/ship.png');
         game.load.image('sparkle', 'assets/img/sparkle.png');
         game.load.image("asteroid", "assets/img/asteroid2.png");
+
+        // Audio
+        game.load.audio("boost", "assets/sounds/boost ship.wav");
+        game.load.audio("fire", "assets/sounds/ship bullets fire.wav");
+        game.load.audio("collision", "assets/sounds/collision.aiff");
     },
     create: function () {
 
@@ -99,6 +104,13 @@ var startState = {
         game.input.keyboard.addKeyCapture([Phaser.Keyboard.SPACEBAR]);
 
 
+        // Audio Effect
+        boost = game.add.sound("boost");
+        fire = game.add.sound("fire");
+        collision = game.add.sound("collision");
+        boost.volume = 0.5;
+        fire.volume = 0.5;
+
     },
     update: function () {
 
@@ -107,11 +119,13 @@ var startState = {
 
         if (cursors.up.isDown) {
             game.physics.arcade.accelerationFromRotation(ship.rotation, 200, ship.body.acceleration);
+            if (!boost.isPlaying) boost.play();
             sparkle.visible = true;
         } else {
             ship.body.acceleration.set(0);
             sparkle.body.acceleration.set(0);
             sparkle.visible = false;
+            boost.pause();
         }
 
         if (cursors.left.isDown) {
@@ -148,6 +162,7 @@ function fireBullet() {
             bullet.rotation = ship.rotation;
             game.physics.arcade.velocityFromRotation(ship.rotation, 400, bullet.body.velocity);
             bulletTime = game.time.now + 50;
+            fire.play();
         }
     }
 
