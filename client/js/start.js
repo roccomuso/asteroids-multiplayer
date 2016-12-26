@@ -6,6 +6,9 @@ var bullet;
 var bullets;
 var bulletTime = 0;
 
+var nEnemies = 40;
+var enemies = [];
+
 var startState = {
     preload: function () {
         game.load.image('space', 'assets/img/deep-space.jpg');
@@ -44,8 +47,23 @@ var startState = {
                 elem.body.bounce.setTo(1, 1);
             });
 
+        // enemies
+        for (var i = 0; i < nEnemies; i++){
+          enemies[i] = game.add.sprite(300+(i*100), 300+(i*100),'ship');
+          enemies[i].animations.add('flash', [0,1,2,3,2,1,0], 24, false);
+        }
+        game.physics.arcade.enable(enemies);
+        enemies.forEach(function(enemy){
+          if (!config.screenWrap)
+            enemy.body.collideWorldBounds = true;
+          enemy.body.velocity.setTo(200, 200);
+          enemy.body.bounce.set(1);
+          enemy.body.onCollide = new Phaser.Signal();
+          enemy.body.onCollide.add(shipsCollision, this);
+        });
+
         //  Our player ship
-        ship = game.add.sprite(300, 300, 'ship');
+        ship = game.add.sprite(200, 200, 'ship');
         ship.anchor.set(0.5);
         game.physics.arcade.enable(ship);
         if (!config.screenWrap)
@@ -66,9 +84,15 @@ var startState = {
 
         //  ship's physics settings
         game.physics.enable(ship, Phaser.Physics.ARCADE);
+        ship.body.bounce.set(1);
+        ship.body.onCollide = new Phaser.Signal();
+        ship.body.onCollide.add(shipsCollision, this);
 
         ship.body.drag.set(100);
         ship.body.maxVelocity.set(200);
+
+        // Collision
+        ship.animations.add('flash', [0,1,2,3,2,1,0], 24, false);
 
         //  Game input
         cursors = game.input.keyboard.createCursorKeys();
@@ -77,6 +101,9 @@ var startState = {
 
     },
     update: function () {
+
+        game.physics.arcade.collide(enemies, ship, shipsCollision);
+        game.physics.arcade.collide(enemies, enemies, shipsCollision);
 
         if (cursors.up.isDown) {
             game.physics.arcade.accelerationFromRotation(ship.rotation, 200, ship.body.acceleration);
@@ -140,4 +167,9 @@ function screenWrap(ship) {
         ship.y = 0;
     }
 
+}
+
+function shipsCollision(sprite1, sprite2) {
+    sprite1.play('flash');
+    sprite2.play('flash');
 }
