@@ -98,7 +98,7 @@ var startState = {
             asteroid.body.collideWorldBounds = true;
           asteroid.body.velocity.setTo(100, 150);
           asteroid.body.angularVelocity = 50;
-          asteroid.body.mass = 10;
+          asteroid.body.mass = (asteroid.body.sprite.texture.baseTexture.source.src.match(/asteroid4/)) ? 10 : 1;
           asteroid.body.bounce.set(1);
         });
 
