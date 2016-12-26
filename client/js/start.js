@@ -174,6 +174,7 @@ var startState = {
         game.physics.arcade.collide(asteroids, asteroids);
         game.physics.arcade.collide(asteroids, enemies);
         game.physics.arcade.collide(moons, moons);
+        game.physics.arcade.collide(moons, asteroids);
         game.physics.arcade.collide(moons, ship, asteroidCollision);
         game.physics.arcade.collide(moons, enemies);
 
