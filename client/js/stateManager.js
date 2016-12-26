@@ -2,6 +2,10 @@
 
 var config = {
     screenWrap: false,
+    ship: {
+        nBullets: 4,
+        rateOfFire: 180
+    },
     players: {
         numbersOfPlayer: 2
     },

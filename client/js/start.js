@@ -65,7 +65,7 @@ var startState = {
         bullets.physicsBodyType = Phaser.Physics.ARCADE;
 
         //  All 40 of them
-        bullets.createMultiple(1, 'bullet');
+        bullets.createMultiple(config.ship.nBullets, 'bullet');
         bullets.setAll('anchor.x', 0.5);
         bullets.setAll('anchor.y', 0.5);
         if (!config.screenWrap)
@@ -155,8 +155,9 @@ var startState = {
 
     },
     update: function () {
-
-        game.physics.arcade.collide(enemies, bullets, bulletsCollision);
+        bullets.forEach(function (bull){
+            game.physics.arcade.collide(enemies, bull, bulletsCollision);        
+        });
         game.physics.arcade.collide(enemies, ship, shipsCollision);
         game.physics.arcade.collide(enemies, enemies);
         game.physics.arcade.collide(asteroids, ship, asteroidCollision);
@@ -211,7 +212,7 @@ function fireBullet() {
             bullet.lifespan = 2000;
             bullet.rotation = ship.rotation;
             game.physics.arcade.velocityFromRotation(ship.rotation, 400, bullet.body.velocity);
-            bulletTime = game.time.now + 50;
+            bulletTime = game.time.now + config.ship.rateOfFire;
             AUDIO.fire.play();
         }
     }
