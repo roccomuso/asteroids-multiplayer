@@ -5,6 +5,7 @@ var cursors;
 var bullet;
 var bullets;
 var bulletTime = 0;
+var AUDIO = {};
 
 var nEnemies = 40;
 var enemies = [];
@@ -18,11 +19,19 @@ var startState = {
         game.load.image("asteroid", "assets/img/asteroid2.png");
 
         // Audio
-        game.load.audio("boost", "assets/sounds/boost ship.wav");
-        game.load.audio("fire", "assets/sounds/ship bullets fire.wav");
-        game.load.audio("collision", "assets/sounds/collision.aiff");
+        game.load.audio("boost", "assets/sounds/boost_ship.wav");
+        game.load.audio("fire", "assets/sounds/ship_bullets_fire.wav");
+        game.load.audio("ship_collision", "assets/sounds/ship_collision.wav");
     },
     create: function () {
+
+        // Audio Effect
+        AUDIO.boost = game.add.sound("boost");
+        AUDIO.fire = game.add.sound("fire");
+        AUDIO.ship_collision = game.add.sound("ship_collision");
+        AUDIO.boost.volume = 0.5;
+        AUDIO.fire.volume = 0.5;
+        AUDIO.ship_collision.volume = 0.5;
 
         // Set world dimension
         game.world.setBounds(0, 0, config.worldDim.width, config.worldDim.height);
@@ -104,28 +113,22 @@ var startState = {
         game.input.keyboard.addKeyCapture([Phaser.Keyboard.SPACEBAR]);
 
 
-        // Audio Effect
-        boost = game.add.sound("boost");
-        fire = game.add.sound("fire");
-        collision = game.add.sound("collision");
-        boost.volume = 0.5;
-        fire.volume = 0.5;
 
     },
     update: function () {
 
         game.physics.arcade.collide(enemies, ship, shipsCollision);
-        game.physics.arcade.collide(enemies, enemies, shipsCollision);
+        game.physics.arcade.collide(enemies, enemies);
 
         if (cursors.up.isDown) {
             game.physics.arcade.accelerationFromRotation(ship.rotation, 200, ship.body.acceleration);
-            if (!boost.isPlaying) boost.play();
+            if (!AUDIO.boost.isPlaying) AUDIO.boost.play();
             sparkle.visible = true;
         } else {
             ship.body.acceleration.set(0);
             sparkle.body.acceleration.set(0);
             sparkle.visible = false;
-            boost.pause();
+            AUDIO.boost.pause();
         }
 
         if (cursors.left.isDown) {
@@ -162,7 +165,7 @@ function fireBullet() {
             bullet.rotation = ship.rotation;
             game.physics.arcade.velocityFromRotation(ship.rotation, 400, bullet.body.velocity);
             bulletTime = game.time.now + 50;
-            fire.play();
+            AUDIO.fire.play();
         }
     }
 
@@ -185,6 +188,8 @@ function screenWrap(ship) {
 }
 
 function shipsCollision(sprite1, sprite2) {
+    AUDIO.ship_collision.play();
+    // TODO, fix animations...
     sprite1.play('flash');
     sprite2.play('flash');
 }
