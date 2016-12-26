@@ -6,8 +6,8 @@ var config = {
         numbersOfPlayer: 2
     },
     display: {
-        height: 720,
-        width: 960
+        height: window.innerHeight * window.devicePixelRatio,
+        width: window.innerWidth * window.devicePixelRatio
     },
     worldDim: {
         height: 2000,
