@@ -78,7 +78,6 @@ var startState = {
         for (var i = 0; i < nEnemies; i++){
           enemies[i] = game.add.sprite(300+(i*100), 300+(i*100),'ship');
           enemies[i].anchor.set(0.5);
-          enemies[i].animations.add('flash', [0,1,2,3,2,1,0], 24, false);
         }
         game.physics.arcade.enable(enemies);
         enemies.forEach(function(enemy){
@@ -86,15 +85,12 @@ var startState = {
             enemy.body.collideWorldBounds = true;
           enemy.body.velocity.setTo(200, 200);
           enemy.body.bounce.set(1);
-          enemy.body.onCollide = new Phaser.Signal();
-          enemy.body.onCollide.add(shipsCollision, this);
         });
 
         // asteroids
         for (var k = 0; k < nAsteroids; k++){
           asteroids[k] = game.add.sprite(300+(k*100), 300+(k*100),'asteroid'+(Math.floor(Math.random()*4)+1));
           asteroids[k].anchor.set(0.5);
-          asteroids[k].animations.add('flash', [0,1,2,3,2,1,0], 24, false);
         }
         game.physics.arcade.enable(asteroids);
         asteroids.forEach(function(asteroid){
@@ -104,15 +100,12 @@ var startState = {
           asteroid.body.angularVelocity = 50;
           asteroid.body.mass = 10;
           asteroid.body.bounce.set(1);
-          asteroid.body.onCollide = new Phaser.Signal();
-          asteroid.body.onCollide.add(shipsCollision, this);
         });
 
         // moon
         for (k = 0; k < nMoons; k++){
           moons[k] = game.add.sprite(300+(k*100), 300+(k*100),'moon');
           moons[k].anchor.set(0.5);
-          moons[k].animations.add('flash', [0,1,2,3,2,1,0], 24, false);
         }
         game.physics.arcade.enable(moons);
         moons.forEach(function(moon){
@@ -123,8 +116,6 @@ var startState = {
           moon.scale.setTo(1.5, 1.5);
           moon.body.mass = 30;
           moon.body.bounce.set(1);
-          moon.body.onCollide = new Phaser.Signal();
-          moon.body.onCollide.add(shipsCollision, this);
         });
 
         //  Our player ship
@@ -248,8 +239,8 @@ function screenWrap(ship) {
 function shipsCollision(sprite1, sprite2) {
     AUDIO.ship_collision.play();
     // TODO, fix animations...
-    sprite1.play('flash');
-    sprite2.play('flash');
+    //sprite1.play('flash');
+    //sprite2.play('flash');
 }
 
 function asteroidCollision(s1, s2){
