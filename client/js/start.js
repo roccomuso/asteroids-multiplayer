@@ -147,9 +147,6 @@ var startState = {
         ship.body.drag.set(100);
         ship.body.maxVelocity.set(200);
 
-        // Collision
-        ship.animations.add('flash', [0,1,2,3,2,1,0], 24, false);
-
         //  Game input
         cursors = game.input.keyboard.createCursorKeys();
         game.input.keyboard.addKeyCapture([Phaser.Keyboard.SPACEBAR]);
@@ -159,6 +156,7 @@ var startState = {
     },
     update: function () {
 
+        game.physics.arcade.collide(enemies, bullets, bulletsCollision);
         game.physics.arcade.collide(enemies, ship, shipsCollision);
         game.physics.arcade.collide(enemies, enemies);
         game.physics.arcade.collide(asteroids, ship, asteroidCollision);
@@ -241,6 +239,12 @@ function shipsCollision(sprite1, sprite2) {
     // TODO, fix animations...
     //sprite1.play('flash');
     //sprite2.play('flash');
+}
+
+function bulletsCollision(sprite1, sprite2) {
+    AUDIO.ship_collision.play();
+    console.log(sprite1);
+    if (sprite1.destroy) sprite1.destroy();
 }
 
 function asteroidCollision(s1, s2){
