@@ -19,12 +19,12 @@
   "author": "Rocco Musolino & Antonio Musolino",
   "license": "ISC",
   "devDependencies": {
+    "browser-sync": "^2.18.5",
     "gulp": "^3.9.1",
     "gulp-browserify": "^0.5.1",
     "gulp-concat": "^2.6.1",
-    "gulp-embedlr": "^0.5.2",
-    "gulp-livereload": "^3.8.1",
     "gulp-minify-css": "^1.2.4",
-    "tiny-lr": "^1.0.3"
+    "gulp-sourcemaps": "^1.9.1",
+    "gulp-uglify": "^2.0.0"
   }
 }
