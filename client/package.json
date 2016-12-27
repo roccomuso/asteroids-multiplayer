@@ -4,7 +4,8 @@
   "description": "Asteroids Multiplayer game",
   "main": "index.js",
   "scripts": {
-    "dev": "gulp"
+    "dev": "gulp",
+    "build": "gulp build"
   },
   "keywords": [
     "asteroids",
