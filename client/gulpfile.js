@@ -7,10 +7,12 @@ var server = lr();
 var minifyCSS = require('gulp-minify-css');
 var embedlr = require('gulp-embedlr');
 
+var serverPort = 2000;
+
 gulp.task('scripts', function() {
     gulp.src(['app/src/**/*.js'])
         .pipe(browserify())
-        .pipe(concat('dest.js'))
+        .pipe(concat('bundle.js'))
         .pipe(gulp.dest('dist/build'))
         .pipe(refresh(server))
 })
@@ -23,7 +25,7 @@ gulp.task('styles', function() {
 })
 
 gulp.task('lr-server', function() {
-    server.listen(35729, function(err) {
+    server.listen(serverPort, function(err) {
         if(err) return console.log(err);
     });
 })
@@ -34,6 +36,10 @@ gulp.task('html', function() {
         .pipe(gulp.dest('dist/'))
         .pipe(refresh(server));
 })
+
+gulp.task('build', function(){
+   gulp.run('scripts','styles','html');
+});
 
 gulp.task('default', function() {
     gulp.run('lr-server', 'scripts', 'styles', 'html');
