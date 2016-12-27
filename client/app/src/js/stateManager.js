@@ -2,8 +2,10 @@
 
 var config = {
     screenWrap: false,
+    collisionDamage:2 ,
     ship: {
-        bulletsDamage:1,
+        maxHealth: 12,
+        bulletsDamage:4,
         nBullets: 4,
         rateOfFire: 180
     },
@@ -33,5 +35,6 @@ game.state.add('boot', bootState);
 game.state.add('load', loadState);
 game.state.add('menu', menuState);
 game.state.add('start', startState);
+game.state.add('gameOver', gameOverState);
 
 game.state.start('boot');

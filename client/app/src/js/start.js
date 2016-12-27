@@ -73,6 +73,7 @@ var startState = {
         bullets.enableBody = true;
         bullets.physicsBodyType = Phaser.Physics.ARCADE;
 
+
         //  All 40 of them
         bullets.createMultiple(config.ship.nBullets, 'bullet');
         bullets.setAll('anchor.x', 0.5);
@@ -95,7 +96,7 @@ var startState = {
             enemy.body.collideWorldBounds = true;
           enemy.body.velocity.setTo(200, 200);
           enemy.body.bounce.set(1);
-          enemy.maxHealth = 3;
+          enemy.maxHealth = config.ship.maxHealth;
           enemy.health = enemy.maxHealth;
           enemy.healthBar = new HealthBar(game,{x: enemy.x, y: enemy.y -20 , width: 40, height: 4,});
         });
@@ -112,7 +113,7 @@ var startState = {
           asteroid.body.velocity.setTo(100, 150);
           asteroid.body.angularVelocity = 50;
           asteroid.body.mass = (asteroid.body.sprite.texture.baseTexture.source.src.match(/asteroid4/)) ? 10 : 1;
-          asteroid.maxHealth = (asteroid.body.sprite.texture.baseTexture.source.src.match(/asteroid4/)) ? 10 : 1
+          asteroid.maxHealth = (asteroid.body.sprite.texture.baseTexture.source.src.match(/asteroid4/)) ? 45 : 4;
           asteroid.health = asteroid.maxHealth;
           asteroid.body.bounce.set(1);
         });
@@ -130,8 +131,8 @@ var startState = {
           moon.body.velocity.setTo(100, 100);
           moon.body.angularVelocity = -30;
           moon.scale.setTo(1.5, 1.5);
-          moon.body.mass = 30;
-          moon.maxHealth = 15;
+          moon.body.mass = 100;
+          moon.maxHealth = 100;
           moon.health = moon.maxHealth; 
           moon.body.bounce.set(1);
         });
@@ -140,6 +141,8 @@ var startState = {
         ship = game.add.sprite(200, 200, 'ship');
         ship.anchor.set(0.5);
         game.physics.arcade.enable(ship);
+        ship.health = config.ship.maxHealth;
+        
         if (!config.screenWrap)
             ship.body.collideWorldBounds = true;
 
@@ -159,8 +162,6 @@ var startState = {
         //  ship's physics settings
         game.physics.enable(ship, Phaser.Physics.ARCADE);
         ship.body.bounce.set(1);
-        ship.body.onCollide = new Phaser.Signal();
-        ship.body.onCollide.add(shipsCollision, this);
 
         ship.body.drag.set(100);
         ship.body.maxVelocity.set(200);
@@ -187,15 +188,15 @@ var startState = {
             game.physics.arcade.collide(asteroids, bull, bulletsCollisionAsteroid);
         });
 
-        game.physics.arcade.collide(enemies, ship, shipsCollision);
-        game.physics.arcade.collide(enemies, enemies);
-        game.physics.arcade.collide(asteroids, ship, asteroidCollision);
-        game.physics.arcade.collide(asteroids, asteroids);
-        game.physics.arcade.collide(asteroids, enemies);
-        game.physics.arcade.collide(moons, moons);
-        game.physics.arcade.collide(moons, asteroids);
-        game.physics.arcade.collide(moons, ship, asteroidCollision);
-        game.physics.arcade.collide(moons, enemies);
+        game.physics.arcade.collide(enemies, ship, shipCollission);
+        game.physics.arcade.collide(enemies, enemies, bodyCollision);
+        game.physics.arcade.collide(asteroids, ship, shipCollission);
+        game.physics.arcade.collide(asteroids, asteroids, bodyCollision);
+        game.physics.arcade.collide(asteroids, enemies, bodyCollision); // bodyCollision
+        game.physics.arcade.collide(moons, moons, bodyCollision);
+        game.physics.arcade.collide(moons, asteroids, bodyCollision);
+        game.physics.arcade.collide(moons, ship, shipCollission);
+        game.physics.arcade.collide(moons, enemies, bodyCollision);
 
         if (cursors.up.isDown) {
             game.physics.arcade.accelerationFromRotation(ship.rotation, 200, ship.body.acceleration);
@@ -226,11 +227,7 @@ var startState = {
         }
 
     },
-    render: function () { },
-    resize: function (width, height)
-    {
-
-    }
+    render: function () { }
 };
 
 
@@ -268,44 +265,52 @@ function screenWrap(ship) {
 
 }
 
-function shipsCollision(sprite1, sprite2) {
-    AUDIO.ship_collision.play();
-    // TODO, fix animations...
-    //sprite1.play('flash');
-    //sprite2.play('flash');
+function damageBody(body, damage)
+{
+    if (!body.health) return true;
+
+    body.health -= damage;
+
+    if (body.healthBar)
+        body.healthBar.setPercent( (body.health/body.maxHealth) * 100);
+    if (body.health <= 0)
+    {
+        if (body.healthBar)
+            body.healthBar.kill();
+        body.destroy();
+    }
 }
 
-function bulletsCollision(enemy, bullet) {
-    enemy.health -= config.ship.bulletsDamage;
-    if (enemy.healthBar)
-        enemy.healthBar.setPercent( (enemy.health/enemy.maxHealth) * 100);
-    if (enemy.health <= 0)
+function shipCollission(body, ship)
+{
+    AUDIO.ship_collision.play();
+    damageBody(body, config.collisionDamage);
+    ship.health -= config.collisionDamage;
+    console.log(ship.health);
+    if (ship.health <= 0)
     {
-        if (enemy.healthBar)
-            enemy.healthBar.kill();
-        enemy.destroy();
+        game.state.start(gameOverState);
+        console.log("calling gameOverState");
     }
-    
-    bullet.kill();
+}
+
+function bodyCollision(body1, body2) 
+{
+    //AUDIO.ship_collision.play();
+    damageBody(body1, config.collisionDamage);
+    damageBody(body2, config.collisionDamage);
 }
 
 function bulletsCollisionShip (enemy, bullet)
 {
     AUDIO.bullet_hit_ship.play();
-    bulletsCollision(enemy,bullet);
+    damageBody(enemy, config.ship.bulletsDamage);
+    bullet.kill();
 }
 
 function bulletsCollisionAsteroid (enemy, bullet)
 {
     AUDIO.bullet_hit_asteroid.play();
-    bulletsCollision(enemy,bullet);
-}
-
-
-
-
-
-
-function asteroidCollision(s1, s2){
-
+    damageBody(enemy,config.ship.bulletsDamage);
+    bullet.kill();
 }
