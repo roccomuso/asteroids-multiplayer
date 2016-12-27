@@ -38,6 +38,9 @@ var startState = {
     },
     create: function () {
 
+        // Window resize
+        game.scale.scaleMode = Phaser.ScaleManager.RESIZE;    
+
         // Audio Effect
         AUDIO.boost = game.add.sound("boost");
         AUDIO.fire = game.add.sound("fire");
@@ -68,6 +71,7 @@ var startState = {
         bullets.createMultiple(config.ship.nBullets, 'bullet');
         bullets.setAll('anchor.x', 0.5);
         bullets.setAll('anchor.y', 0.5);
+        bullets.setAll('body.mass', 0.001);
         if (!config.screenWrap)
             bullets.forEach(function (elem) {
                 elem.body.collideWorldBounds = true;
@@ -85,6 +89,7 @@ var startState = {
             enemy.body.collideWorldBounds = true;
           enemy.body.velocity.setTo(200, 200);
           enemy.body.bounce.set(1);
+          enemy.health = 1;
         });
 
         // asteroids
@@ -99,6 +104,7 @@ var startState = {
           asteroid.body.velocity.setTo(100, 150);
           asteroid.body.angularVelocity = 50;
           asteroid.body.mass = (asteroid.body.sprite.texture.baseTexture.source.src.match(/asteroid4/)) ? 10 : 1;
+          asteroid.health = (asteroid.body.sprite.texture.baseTexture.source.src.match(/asteroid4/)) ? 10 : 1
           asteroid.body.bounce.set(1);
         });
 
@@ -106,6 +112,7 @@ var startState = {
         for (k = 0; k < nMoons; k++){
           moons[k] = game.add.sprite(300+(k*100), 300+(k*100),'moon');
           moons[k].anchor.set(0.5);
+          
         }
         game.physics.arcade.enable(moons);
         moons.forEach(function(moon){
@@ -115,6 +122,7 @@ var startState = {
           moon.body.angularVelocity = -30;
           moon.scale.setTo(1.5, 1.5);
           moon.body.mass = 30;
+          moon.health = 15;
           moon.body.bounce.set(1);
         });
 
@@ -155,9 +163,13 @@ var startState = {
 
     },
     update: function () {
+        // Bullets collision
         bullets.forEach(function (bull){
-            game.physics.arcade.collide(enemies, bull, bulletsCollision);        
+            game.physics.arcade.collide(enemies, bull, bulletsCollision);    
+            game.physics.arcade.collide(moons, bull, bulletsCollision);
+            game.physics.arcade.collide(asteroids, bull, bulletsCollision);
         });
+
         game.physics.arcade.collide(enemies, ship, shipsCollision);
         game.physics.arcade.collide(enemies, enemies);
         game.physics.arcade.collide(asteroids, ship, asteroidCollision);
@@ -197,7 +209,11 @@ var startState = {
         }
 
     },
-    render: function () { }
+    render: function () { },
+    resize: function (width, height)
+    {
+
+    }
 };
 
 
@@ -244,7 +260,11 @@ function shipsCollision(sprite1, sprite2) {
 
 function bulletsCollision(enemy, bullet) {
     AUDIO.ship_collision.play();
-    enemy.destroy();
+    enemy.health -= config.ship.bulletsDamage;
+    if (enemy.health <= 0)
+    {
+        enemy.destroy();
+    }
     bullet.visible = false;
 }
 

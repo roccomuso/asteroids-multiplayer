@@ -3,6 +3,7 @@
 var config = {
     screenWrap: false,
     ship: {
+        bulletsDamage:1,
         nBullets: 4,
         rateOfFire: 180
     },
