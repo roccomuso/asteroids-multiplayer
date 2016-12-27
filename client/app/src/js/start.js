@@ -35,6 +35,8 @@ var startState = {
         game.load.audio("boost", "assets/sounds/boost_ship.wav");
         game.load.audio("fire", "assets/sounds/ship_bullets_fire.wav");
         game.load.audio("ship_collision", "assets/sounds/ship_collision.wav");
+        game.load.audio("bullet_hit_ship", "assets/sounds/bullet_hit_ship.wav");
+        game.load.audio("bullet_hit_asteroid", "assets/sounds/bullet_hit_asteroid.wav");
     },
     create: function () {
 
@@ -45,9 +47,13 @@ var startState = {
         AUDIO.boost = game.add.sound("boost");
         AUDIO.fire = game.add.sound("fire");
         AUDIO.ship_collision = game.add.sound("ship_collision");
+        AUDIO.bullet_hit_ship = game.add.sound("bullet_hit_ship");
+        AUDIO.bullet_hit_asteroid = game.add.sound("bullet_hit_asteroid");        
         AUDIO.boost.volume = 0.5;
         AUDIO.fire.volume = 0.5;
         AUDIO.ship_collision.volume = 0.5;
+        AUDIO.bullet_hit_ship.volume = 1;
+        AUDIO.bullet_hit_asteroid.volume = 1;
 
         // Set world dimension
         game.world.setBounds(0, 0, config.worldDim.width, config.worldDim.height);
@@ -176,9 +182,9 @@ var startState = {
 
         // Bullets collision
         bullets.forEach(function (bull){
-            game.physics.arcade.collide(enemies, bull, bulletsCollision);    
-            game.physics.arcade.collide(moons, bull, bulletsCollision);
-            game.physics.arcade.collide(asteroids, bull, bulletsCollision);
+            game.physics.arcade.collide(enemies, bull, bulletsCollisionShip);    
+            game.physics.arcade.collide(moons, bull, bulletsCollisionAsteroid);
+            game.physics.arcade.collide(asteroids, bull, bulletsCollisionAsteroid);
         });
 
         game.physics.arcade.collide(enemies, ship, shipsCollision);
@@ -270,7 +276,6 @@ function shipsCollision(sprite1, sprite2) {
 }
 
 function bulletsCollision(enemy, bullet) {
-    AUDIO.ship_collision.play();
     enemy.health -= config.ship.bulletsDamage;
     if (enemy.healthBar)
         enemy.healthBar.setPercent( (enemy.health/enemy.maxHealth) * 100);
@@ -280,8 +285,26 @@ function bulletsCollision(enemy, bullet) {
             enemy.healthBar.kill();
         enemy.destroy();
     }
+    
     bullet.kill();
 }
+
+function bulletsCollisionShip (enemy, bullet)
+{
+    AUDIO.bullet_hit_ship.play();
+    bulletsCollision(enemy,bullet);
+}
+
+function bulletsCollisionAsteroid (enemy, bullet)
+{
+    AUDIO.bullet_hit_asteroid.play();
+    bulletsCollision(enemy,bullet);
+}
+
+
+
+
+
 
 function asteroidCollision(s1, s2){
 
