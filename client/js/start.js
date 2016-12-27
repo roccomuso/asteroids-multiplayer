@@ -89,7 +89,9 @@ var startState = {
             enemy.body.collideWorldBounds = true;
           enemy.body.velocity.setTo(200, 200);
           enemy.body.bounce.set(1);
-          enemy.health = 1;
+          enemy.maxHealth = 3;
+          enemy.health = enemy.maxHealth;
+          enemy.healthBar = new HealthBar(game,{x: enemy.x, y: enemy.y -20 , width: 40, height: 4,});
         });
 
         // asteroids
@@ -104,7 +106,8 @@ var startState = {
           asteroid.body.velocity.setTo(100, 150);
           asteroid.body.angularVelocity = 50;
           asteroid.body.mass = (asteroid.body.sprite.texture.baseTexture.source.src.match(/asteroid4/)) ? 10 : 1;
-          asteroid.health = (asteroid.body.sprite.texture.baseTexture.source.src.match(/asteroid4/)) ? 10 : 1
+          asteroid.maxHealth = (asteroid.body.sprite.texture.baseTexture.source.src.match(/asteroid4/)) ? 10 : 1
+          asteroid.health = asteroid.maxHealth;
           asteroid.body.bounce.set(1);
         });
 
@@ -122,7 +125,8 @@ var startState = {
           moon.body.angularVelocity = -30;
           moon.scale.setTo(1.5, 1.5);
           moon.body.mass = 30;
-          moon.health = 15;
+          moon.maxHealth = 15;
+          moon.health = moon.maxHealth; 
           moon.body.bounce.set(1);
         });
 
@@ -163,6 +167,13 @@ var startState = {
 
     },
     update: function () {
+        // Health bar update position
+        enemies.forEach(function(enemi)
+        {
+            enemi.healthBar.setPosition(enemi.x, enemi.y-20);
+        });
+
+
         // Bullets collision
         bullets.forEach(function (bull){
             game.physics.arcade.collide(enemies, bull, bulletsCollision);    
@@ -261,11 +272,15 @@ function shipsCollision(sprite1, sprite2) {
 function bulletsCollision(enemy, bullet) {
     AUDIO.ship_collision.play();
     enemy.health -= config.ship.bulletsDamage;
+    if (enemy.healthBar)
+        enemy.healthBar.setPercent( (enemy.health/enemy.maxHealth) * 100);
     if (enemy.health <= 0)
     {
+        if (enemy.healthBar)
+            enemy.healthBar.kill();
         enemy.destroy();
     }
-    bullet.visible = false;
+    bullet.kill();
 }
 
 function asteroidCollision(s1, s2){
