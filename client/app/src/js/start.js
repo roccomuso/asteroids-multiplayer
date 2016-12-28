@@ -131,7 +131,7 @@ var startState = {
           moon.body.velocity.setTo(100, 100);
           moon.body.angularVelocity = -30;
           moon.scale.setTo(1.5, 1.5);
-          moon.body.mass = 100;
+          moon.body.mass = 10 ;
           moon.maxHealth = 100;
           moon.health = moon.maxHealth; 
           moon.body.bounce.set(1);
