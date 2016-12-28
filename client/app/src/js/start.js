@@ -141,8 +141,12 @@ var startState = {
         ship = game.add.sprite(200, 200, 'ship');
         ship.anchor.set(0.5);
         game.physics.arcade.enable(ship);
-        ship.health = config.ship.maxHealth;
-        
+        ship.maxHealth = 100;
+        ship.health = ship.maxHealth; // change our ship maxHealth with config.ship.maxShipHealth
+        ship.healthBar = new HealthBar(game, {x: 150, y: config.display.height- 50 ,width: 250, height: 40});
+        // TODO It must be created a User Interface and health bar must be inserted inside UI.
+        ship.healthBar.setFixedToCamera(true);
+
         if (!config.screenWrap)
             ship.body.collideWorldBounds = true;
 
@@ -227,7 +231,7 @@ var startState = {
         }
 
     },
-    render: function () { }
+    render: function () { },
 };
 
 
@@ -286,6 +290,7 @@ function shipCollission(body, ship)
     AUDIO.ship_collision.play();
     damageBody(body, config.collisionDamage);
     ship.health -= config.collisionDamage;
+    ship.healthBar.setPercent((ship.health/ship.maxHealth) * 100);
     console.log(ship.health);
     if (ship.health <= 0)
     {
