@@ -288,22 +288,43 @@ function damageBody(body, damage)
 function shipCollission(body, ship)
 {
     AUDIO.ship_collision.play();
-    damageBody(body, config.collisionDamage);
-    ship.health -= config.collisionDamage;
-    ship.healthBar.setPercent((ship.health/ship.maxHealth) * 100);
-    console.log(ship.health);
-    if (ship.health <= 0)
+    if (!body.timeOutCollision)
     {
-        game.state.start(gameOverState);
-        console.log("calling gameOverState");
+        damageBody(body, config.collisionDamage);
+        body.timeOutCollision = true;
+        setTimeout(function () { body.timeOutCollision = false}, 500);
+    }
+    if (!ship.timeOutCollision)
+    {
+        ship.timeOutCollision = true;
+        setTimeout(function () { ship.timeOutCollision = false}, 500);
+        ship.health -= config.collisionDamage;
+        ship.healthBar.setPercent((ship.health/ship.maxHealth) * 100);
+        console.log(ship.health);
+        if (ship.health <=  0)
+        {
+            game.state.start(gameOverState);
+            console.log("calling gameOverState");
+        }
     }
 }
 
 function bodyCollision(body1, body2) 
 {
     //AUDIO.ship_collision.play();
-    damageBody(body1, config.collisionDamage);
-    damageBody(body2, config.collisionDamage);
+    
+    if (!body1.timeOutCollision)
+    {
+        damageBody(body1, config.collisionDamage);
+        body1.timeOutCollision = true;
+        setTimeout(function () { body1.timeOutCollision = false}, 500);
+    }
+    if (!body2.timeOutCollision)
+    {
+        damageBody(body2, config.collisionDamage);
+        body2.timeOutCollision = true;
+        setTimeout(function () { body2.timeOutCollision = false}, 500);
+    }
 }
 
 function bulletsCollisionShip (enemy, bullet)
@@ -319,3 +340,5 @@ function bulletsCollisionAsteroid (enemy, bullet)
     damageBody(enemy,config.ship.bulletsDamage);
     bullet.kill();
 }
+
+
