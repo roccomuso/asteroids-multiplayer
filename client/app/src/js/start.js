@@ -8,15 +8,15 @@ var bulletTime = 0;
 var AUDIO = {};
 
 // enemies
-var nEnemies = 20;
+var nEnemies = config.nEnemies;
 var enemies = [];
 
 // asteroids
-var nAsteroids = 20;
+var nAsteroids = config.nAsteroids;
 var asteroids = [];
 
 // moon
-var nMoons = 1;
+var nMoons = config.nMoons;
 var moons = [];
 
 var startState = {
@@ -41,14 +41,14 @@ var startState = {
     create: function () {
 
         // Window resize
-        game.scale.scaleMode = Phaser.ScaleManager.RESIZE;    
+        game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
 
         // Audio Effect
         AUDIO.boost = game.add.sound("boost");
         AUDIO.fire = game.add.sound("fire");
         AUDIO.ship_collision = game.add.sound("ship_collision");
         AUDIO.bullet_hit_ship = game.add.sound("bullet_hit_ship");
-        AUDIO.bullet_hit_asteroid = game.add.sound("bullet_hit_asteroid");        
+        AUDIO.bullet_hit_asteroid = game.add.sound("bullet_hit_asteroid");
         AUDIO.boost.volume = 0.5;
         AUDIO.fire.volume = 0.5;
         AUDIO.ship_collision.volume = 0.5;
@@ -122,7 +122,7 @@ var startState = {
         for (k = 0; k < nMoons; k++){
           moons[k] = game.add.sprite(300+(k*100), 300+(k*100),'moon');
           moons[k].anchor.set(0.5);
-          
+
         }
         game.physics.arcade.enable(moons);
         moons.forEach(function(moon){
@@ -133,42 +133,29 @@ var startState = {
           moon.scale.setTo(1.5, 1.5);
           moon.body.mass = 10 ;
           moon.maxHealth = 100;
-          moon.health = moon.maxHealth; 
+          moon.health = moon.maxHealth;
           moon.body.bounce.set(1);
         });
 
         //  Our player ship
-        ship = game.add.sprite(200, 200, 'ship');
-        ship.anchor.set(0.5);
-        game.physics.arcade.enable(ship);
-        ship.maxHealth = 100;
-        ship.health = ship.maxHealth; // change our ship maxHealth with config.ship.maxShipHealth
-        ship.healthBar = new HealthBar(game, {x: 150, y: config.display.height- 50 ,width: 250, height: 40});
-        // TODO It must be created a User Interface and health bar must be inserted inside UI.
-        ship.healthBar.setFixedToCamera(true);
-
-        if (!config.screenWrap)
-            ship.body.collideWorldBounds = true;
-
+        ship = new Player(game);
+        console.log('ship instance', ship);
         // Ship's sparkle
         sparkle = game.add.sprite(0, 0, 'sparkle');
         sparkle.angle = 180;
         sparkle.anchor.set(0.5);
-        ship.addChild(sparkle);
+        ship.addSparkle(sparkle);
+
 
         // Camera Gesture
         game.camera.x = ship.x;
         game.camera.y = ship.y;
         game.camera.height = game.height;
         game.camera.width = game.width;
-        game.camera.follow(ship);
+        ship.cameraFollow();
 
-        //  ship's physics settings
-        game.physics.enable(ship, Phaser.Physics.ARCADE);
-        ship.body.bounce.set(1);
+        ship.enablePhysics();
 
-        ship.body.drag.set(100);
-        ship.body.maxVelocity.set(200);
 
         //  Game input
         cursors = game.input.keyboard.createCursorKeys();
@@ -187,38 +174,38 @@ var startState = {
 
         // Bullets collision
         bullets.forEach(function (bull){
-            game.physics.arcade.collide(enemies, bull, bulletsCollisionShip);    
+            game.physics.arcade.collide(enemies, bull, bulletsCollisionShip);
             game.physics.arcade.collide(moons, bull, bulletsCollisionAsteroid);
             game.physics.arcade.collide(asteroids, bull, bulletsCollisionAsteroid);
         });
 
-        game.physics.arcade.collide(enemies, ship, shipCollission);
+        game.physics.arcade.collide(enemies, ship.sprite, shipCollission);
         game.physics.arcade.collide(enemies, enemies, bodyCollision);
-        game.physics.arcade.collide(asteroids, ship, shipCollission);
+        game.physics.arcade.collide(asteroids, ship.sprite, shipCollission);
         game.physics.arcade.collide(asteroids, asteroids, bodyCollision);
         game.physics.arcade.collide(asteroids, enemies, bodyCollision); // bodyCollision
         game.physics.arcade.collide(moons, moons, bodyCollision);
         game.physics.arcade.collide(moons, asteroids, bodyCollision);
-        game.physics.arcade.collide(moons, ship, shipCollission);
+        game.physics.arcade.collide(moons, ship.sprite, shipCollission);
         game.physics.arcade.collide(moons, enemies, bodyCollision);
 
         if (cursors.up.isDown) {
-            game.physics.arcade.accelerationFromRotation(ship.rotation, 200, ship.body.acceleration);
+            game.physics.arcade.accelerationFromRotation(ship.sprite.rotation, 200, ship.sprite.body.acceleration);
             if (!AUDIO.boost.isPlaying) AUDIO.boost.play();
             sparkle.visible = true;
         } else {
-            ship.body.acceleration.set(0);
+            ship.sprite.body.acceleration.set(0);
             sparkle.body.acceleration.set(0);
             sparkle.visible = false;
             AUDIO.boost.pause();
         }
 
         if (cursors.left.isDown) {
-            ship.body.angularVelocity = -300;
+            ship.sprite.body.angularVelocity = -300;
         } else if (cursors.right.isDown) {
-            ship.body.angularVelocity = 300;
+            ship.sprite.body.angularVelocity = 300;
         } else {
-            ship.body.angularVelocity = 0;
+            ship.sprite.body.angularVelocity = 0;
         }
 
         if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
@@ -226,7 +213,7 @@ var startState = {
         }
 
         if (config.screenWrap) {
-            screenWrap(ship);
+            screenWrap(ship.sprite);
             bullets.forEachExists(screenWrap, this);
         }
 
@@ -242,10 +229,10 @@ function fireBullet() {
         bullet = bullets.getFirstExists(false);
 
         if (bullet) {
-            bullet.reset(ship.body.x + 16, ship.body.y + 16);
+            bullet.reset(ship.sprite.body.x + 16, ship.sprite.body.y + 16);
             bullet.lifespan = 2000;
-            bullet.rotation = ship.rotation;
-            game.physics.arcade.velocityFromRotation(ship.rotation, 400, bullet.body.velocity);
+            bullet.rotation = ship.sprite.rotation;
+            game.physics.arcade.velocityFromRotation(ship.sprite.rotation, 400, bullet.body.velocity);
             bulletTime = game.time.now + config.ship.rateOfFire;
             AUDIO.fire.play();
         }
@@ -309,10 +296,10 @@ function shipCollission(body, ship)
     }
 }
 
-function bodyCollision(body1, body2) 
+function bodyCollision(body1, body2)
 {
     //AUDIO.ship_collision.play();
-    
+
     if (!body1.timeOutCollision)
     {
         damageBody(body1, config.collisionDamage);
@@ -340,5 +327,3 @@ function bulletsCollisionAsteroid (enemy, bullet)
     damageBody(enemy,config.ship.bulletsDamage);
     bullet.kill();
 }
-
-
